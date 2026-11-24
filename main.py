@@ -1,24 +1,26 @@
-#!/usr/bin/env python3
-"""Entrypoint for news-image-20261123 (standard library only).
+"""Entry point for news-image-20261123.
 
-Copies the pre-rendered front page, entry.png (produced by render.py
-in this same repository), to /output/entry.png. Runs with no network
-and nothing installed, so it uses only the standard library. The copy
-is byte-for-byte, so repeated runs write identical bytes.
+Draws the front page with render.py and writes it to /output/entry.png
+(the path the contest gate reads). When /output does not exist (local
+runs), the image is written next to this file instead.
 """
-
 import os
-import shutil
+import sys
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.join(HERE, "entry.png")
-OUT_DIR = os.environ.get("ENTRY_OUTPUT_DIR", "/output")
-OUT = os.path.join(OUT_DIR, "entry.png")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from render import render
 
 
 def main():
-    os.makedirs(OUT_DIR, exist_ok=True)
-    shutil.copyfile(SRC, OUT)
+    img = render()
+    if os.path.isdir("/output"):
+        out = "/output/entry.png"
+    else:
+        out = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "entry.png")
+    img.save(out, "PNG")
+    print("wrote", out)
 
 
 if __name__ == "__main__":
